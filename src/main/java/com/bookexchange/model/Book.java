@@ -41,6 +41,13 @@ public class Book {
     private String status;
     private LocalDateTime createdAt;
 
+    // Associated owner details for display
+    private String ownerName;
+    private String ownerEmail;
+    private String ownerPhone;
+    private String ownerDepartment;
+    private String ownerCourse;
+
     public Book() {
     }
 
@@ -132,4 +139,15 @@ public class Book {
     public void setStatus(String status) { this.status = status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public String getOwnerName() { return ownerName; }
+    public void setOwnerName(String ownerName) { this.ownerName = ownerName; }
+    public String getOwnerEmail() { return ownerEmail; }
+    public void setOwnerEmail(String ownerEmail) { this.ownerEmail = ownerEmail; }
+    public String getOwnerPhone() { return ownerPhone; }
+    public void setOwnerPhone(String ownerPhone) { this.ownerPhone = ownerPhone; }
+    public String getOwnerDepartment() { return ownerDepartment; }
+    public void setOwnerDepartment(String ownerDepartment) { this.ownerDepartment = ownerDepartment; }
+    public String getOwnerCourse() { return ownerCourse; }
+    public void setOwnerCourse(String ownerCourse) { this.ownerCourse = ownerCourse; }
 }

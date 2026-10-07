@@ -1,6 +1,7 @@
 package com.bookexchange.servlet;
 
 import com.bookexchange.dao.BookDao;
+import com.bookexchange.dao.ExchangeRequestDao;
 import com.bookexchange.model.Book;
 import com.bookexchange.model.User;
 
@@ -16,6 +17,7 @@ import java.util.List;
 @WebServlet("/dashboard")
 public class DashboardServlet extends HttpServlet {
     private final BookDao bookDao = new BookDao();
+    private final ExchangeRequestDao exchangeRequestDao = new ExchangeRequestDao();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -25,16 +27,22 @@ public class DashboardServlet extends HttpServlet {
             return;
         }
 
+        User currentUser = (User) session.getAttribute("user");
         String search = request.getParameter("search");
-        List<Book> books;
-        if (search != null && !search.trim().isEmpty()) {
-            books = bookDao.searchBooks(search.trim());
-        } else {
-            books = bookDao.getAllBooks();
-        }
+        String category = request.getParameter("category");
+
+        List<Book> books = bookDao.searchBooks(search, category);
+        List<Integer> pendingBookIds = exchangeRequestDao.getPendingBookIdsForUser(currentUser.getId());
+        int pendingIncomingCount = exchangeRequestDao.getPendingIncomingCount(currentUser.getId());
+
+        // Update badge count in session for header navigation
+        session.setAttribute("pendingIncomingCount", pendingIncomingCount);
 
         request.setAttribute("books", books);
-        request.setAttribute("searchKeyword", search);
+        request.setAttribute("searchKeyword", search != null ? search : "");
+        request.setAttribute("selectedCategory", category != null ? category : "All");
+        request.setAttribute("pendingBookIds", pendingBookIds);
+
         request.getRequestDispatcher("/WEB-INF/views/dashboard.jsp").forward(request, response);
     }
 

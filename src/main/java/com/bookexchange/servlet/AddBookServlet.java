@@ -11,16 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.Part;
 
 @WebServlet("/add-book")
-@MultipartConfig(maxFileSize = 5 * 1024 * 1024, maxRequestSize = 25 * 1024 * 1024)
 public class AddBookServlet extends HttpServlet {
     private final BookDao bookDao = new BookDao();
 
@@ -43,32 +35,32 @@ public class AddBookServlet extends HttpServlet {
         }
 
         User user = (User) session.getAttribute("user");
-        String title = value(request, "title");
-        String author = value(request, "author");
-        String isbn = value(request, "isbn");
-        String category = value(request, "category");
-        String condition = value(request, "condition");
-        String edition = value(request, "edition");
-        String publisher = value(request, "publisher");
-        String language = value(request, "language");
-        String conditionDetails = value(request, "conditionDetails");
-        String saleMode = value(request, "saleMode");
-        String status = value(request, "status");
-        String preferredCategory = value(request, "preferredCategory");
-        String preferredAuthor = value(request, "preferredAuthor");
-        String preferredSubject = value(request, "preferredSubject");
-        String college = value(request, "college");
-        String branch = value(request, "branch");
-        String yearSemester = value(request, "yearSemester");
-        String location = value(request, "location");
-        String deliveryOptions = value(request, "deliveryOptions");
-        String additionalNotes = value(request, "additionalNotes");
-        String sellingReason = value(request, "sellingReason");
-        String usageDuration = value(request, "usageDuration");
-        String description = value(request, "description");
-        String priceStr = value(request, "sellingPrice");
-        String originalPriceStr = value(request, "originalPrice");
-        String publicationYearStr = value(request, "publicationYear");
+        String title = request.getParameter("title");
+        String author = request.getParameter("author");
+        String isbn = request.getParameter("isbn");
+        String category = request.getParameter("category");
+        String condition = request.getParameter("condition");
+        String edition = request.getParameter("edition");
+        String publisher = request.getParameter("publisher");
+        String language = request.getParameter("language");
+        String conditionDetails = request.getParameter("conditionDetails");
+        String saleMode = request.getParameter("saleMode");
+        String status = request.getParameter("status");
+        String preferredCategory = request.getParameter("preferredCategory");
+        String preferredAuthor = request.getParameter("preferredAuthor");
+        String preferredSubject = request.getParameter("preferredSubject");
+        String college = request.getParameter("college");
+        String branch = request.getParameter("branch");
+        String yearSemester = request.getParameter("yearSemester");
+        String location = request.getParameter("location");
+        String deliveryOptions = request.getParameter("deliveryOptions");
+        String additionalNotes = request.getParameter("additionalNotes");
+        String sellingReason = request.getParameter("sellingReason");
+        String usageDuration = request.getParameter("usageDuration");
+        String description = request.getParameter("description");
+        String priceStr = request.getParameter("sellingPrice");
+        String originalPriceStr = request.getParameter("originalPrice");
+        String publicationYearStr = request.getParameter("publicationYear");
 
         if (title == null || author == null || isbn == null || title.trim().isEmpty() || author.trim().isEmpty() || isbn.trim().isEmpty()) {
             request.setAttribute("error", "Book title, author, and ISBN are required.");
@@ -79,8 +71,8 @@ public class AddBookServlet extends HttpServlet {
         double price = 0.0;
         double originalPrice = 0.0;
         try {
-            price = Double.parseDouble(priceStr != null ? priceStr : "0");
-            originalPrice = Double.parseDouble(originalPriceStr != null ? originalPriceStr : "0");
+            price = Double.parseDouble(priceStr != null && !priceStr.trim().isEmpty() ? priceStr.trim() : "0");
+            originalPrice = Double.parseDouble(originalPriceStr != null && !originalPriceStr.trim().isEmpty() ? originalPriceStr.trim() : "0");
         } catch (NumberFormatException e) {
             request.setAttribute("error", "Price must be a valid number.");
             request.getRequestDispatcher("/WEB-INF/views/add-book.jsp").forward(request, response);
@@ -91,10 +83,10 @@ public class AddBookServlet extends HttpServlet {
         book.setPublisher(publisher);
         book.setLanguage(language);
         book.setConditionDetails(conditionDetails);
-        book.setMissingPages("yes".equalsIgnoreCase(value(request, "missingPages")));
-        book.setDamagedCover("yes".equalsIgnoreCase(value(request, "damagedCover")));
+        book.setMissingPages("yes".equalsIgnoreCase(request.getParameter("missingPages")));
+        book.setDamagedCover("yes".equalsIgnoreCase(request.getParameter("damagedCover")));
         book.setOriginalPrice(originalPrice);
-        book.setNegotiable("yes".equalsIgnoreCase(value(request, "negotiable")));
+        book.setNegotiable("yes".equalsIgnoreCase(request.getParameter("negotiable")));
         book.setSaleMode(saleMode);
         book.setStatus(status == null || status.trim().isEmpty() ? "AVAILABLE" : status.toUpperCase());
         book.setPreferredCategory(preferredCategory);
@@ -108,21 +100,17 @@ public class AddBookServlet extends HttpServlet {
         book.setAdditionalNotes(additionalNotes);
         book.setSellingReason(sellingReason);
         book.setUsageDuration(usageDuration);
+
         if (publicationYearStr != null && !publicationYearStr.trim().isEmpty()) {
             try {
-                book.setPublicationYear(Integer.parseInt(publicationYearStr));
+                book.setPublicationYear(Integer.parseInt(publicationYearStr.trim()));
             } catch (NumberFormatException e) {
                 request.setAttribute("error", "Publication year must be a valid number.");
                 request.getRequestDispatcher("/WEB-INF/views/add-book.jsp").forward(request, response);
                 return;
             }
         }
-        String[] imagePaths = saveImages(request);
-        book.setImage1(imagePaths[0]);
-        book.setImage2(imagePaths[1]);
-        book.setImage3(imagePaths[2]);
-        book.setImage4(imagePaths[3]);
-        book.setImage5(imagePaths[4]);
+
         boolean success = bookDao.addBook(book);
 
         if (success) {
@@ -130,44 +118,6 @@ public class AddBookServlet extends HttpServlet {
         } else {
             request.setAttribute("error", "Book could not be added. Please try again.");
             request.getRequestDispatcher("/WEB-INF/views/add-book.jsp").forward(request, response);
-        }
-    }
-
-    private String[] saveImages(HttpServletRequest request) throws IOException, ServletException {
-        String[] paths = new String[5];
-        Path uploadDirectory = Paths.get(getServletContext().getRealPath("/uploads"));
-        Files.createDirectories(uploadDirectory);
-        int index = 0;
-        for (Part part : request.getParts()) {
-            if (!part.getName().startsWith("image") || part.getSize() == 0 || index == paths.length) {
-                continue;
-            }
-            String contentType = part.getContentType();
-            if (contentType == null || !contentType.startsWith("image/")) {
-                continue;
-            }
-            String extension = contentType.substring("image/".length()).replaceAll("[^a-zA-Z0-9]", "");
-            String fileName = UUID.randomUUID() + "." + extension;
-            Path destination = uploadDirectory.resolve(fileName);
-            try (InputStream input = part.getInputStream()) {
-                Files.copy(input, destination);
-            }
-            paths[index++] = "uploads/" + fileName;
-        }
-        return paths;
-    }
-
-    private String value(HttpServletRequest request, String name) throws IOException, ServletException {
-        String value = request.getParameter(name);
-        if (value != null) {
-            return value;
-        }
-        Part part = request.getPart(name);
-        if (part == null || part.getSize() == 0) {
-            return null;
-        }
-        try (InputStream input = part.getInputStream()) {
-            return new String(input.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
         }
     }
 }

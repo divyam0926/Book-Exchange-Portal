@@ -16,7 +16,20 @@ public class LoginServlet extends HttpServlet {
     private final UserDao userDao = new UserDao();
 
     @Override
+    public void init() throws ServletException {
+        super.init();
+        try {
+            userDao.ensureAdminAccountExists();
+        } catch (Exception ignored) {}
+    }
+
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session != null && session.getAttribute("user") != null) {
+            response.sendRedirect("dashboard");
+            return;
+        }
         request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
     }
 
