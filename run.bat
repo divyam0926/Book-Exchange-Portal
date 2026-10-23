@@ -5,7 +5,12 @@ echo    Book Exchange Portal - Starting...
 echo ========================================
 echo.
 
-set JAVA_HOME=C:\Program Files\Microsoft\jdk-21.0.12.101-hotspot
+set "JAVA_HOME=%USERPROFILE%\.jdk\jdk-25.0.4.1+1"
+if not exist "%JAVA_HOME%\bin\java.exe" (
+    echo JDK 25 was not found at "%JAVA_HOME%".
+    exit /b 1
+)
+
 set MVN=%USERPROFILE%\.maven\maven-3.9.15\bin\mvn.cmd
 
 echo [1/2] Building project...
