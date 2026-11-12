@@ -18,10 +18,9 @@ public class BookDao {
                      "usage_duration, image1, image2, image3, image4, image5, status, created_at) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setInt(1, book.getUserId());
             stmt.setString(2, book.getTitle());
             stmt.setString(3, book.getAuthor());
@@ -79,10 +78,9 @@ public class BookDao {
                      (book.getImage3() != null ? ", image3 = ?" : "") +
                      " WHERE id = ? AND user_id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             int idx = 1;
             stmt.setString(idx++, book.getTitle());
             stmt.setString(idx++, book.getAuthor());
@@ -132,8 +130,7 @@ public class BookDao {
         String deleteRequestsSql = "DELETE FROM exchange_requests WHERE book_id = ?";
         String deleteBookSql = "DELETE FROM books WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD)) {
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
+        try (Connection conn = DatabaseConfig.getConnection()) {
             conn.setAutoCommit(false);
 
             try (PreparedStatement reqStmt = conn.prepareStatement(deleteRequestsSql);
@@ -162,10 +159,9 @@ public class BookDao {
     public boolean updateStatus(int bookId, String status) {
         String sql = "UPDATE books SET status = ? WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setString(1, status);
             stmt.setInt(2, bookId);
 
@@ -182,11 +178,10 @@ public class BookDao {
                      "u.department AS owner_dept, u.course AS owner_course " +
                      "FROM books b LEFT JOIN users u ON b.user_id = u.id ORDER BY b.created_at DESC";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             while (rs.next()) {
                 books.add(extractBookFromResultSet(rs));
             }
@@ -202,10 +197,9 @@ public class BookDao {
                      "u.department AS owner_dept, u.course AS owner_course " +
                      "FROM books b LEFT JOIN users u ON b.user_id = u.id WHERE b.user_id = ? ORDER BY b.created_at DESC";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setInt(1, userId);
 
             ResultSet rs = stmt.executeQuery();
@@ -237,10 +231,9 @@ public class BookDao {
         }
         sql.append("ORDER BY b.created_at DESC");
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             int idx = 1;
             if (hasKeyword) {
                 String like = "%" + keyword.trim() + "%";
@@ -274,10 +267,9 @@ public class BookDao {
                      "u.department AS owner_dept, u.course AS owner_course " +
                      "FROM books b LEFT JOIN users u ON b.user_id = u.id WHERE b.id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {

@@ -14,10 +14,9 @@ public class UserDao {
     public boolean registerUser(User user) {
         String sql = "INSERT INTO users (full_name, email, password, phone, department, course, role, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setString(1, user.getFullName());
             stmt.setString(2, user.getEmail());
             stmt.setString(3, BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(12)));
@@ -37,10 +36,9 @@ public class UserDao {
     public User loginUser(String email, String password) {
         String sql = "SELECT * FROM users WHERE email = ?";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setString(1, email);
 
             ResultSet rs = stmt.executeQuery();
@@ -71,10 +69,9 @@ public class UserDao {
     public User getUserById(int id) {
         String sql = "SELECT * FROM users WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setInt(1, id);
 
             ResultSet rs = stmt.executeQuery();
@@ -90,10 +87,9 @@ public class UserDao {
     public boolean updateProfile(User user) {
         String sql = "UPDATE users SET full_name = ?, phone = ?, department = ?, course = ? WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setString(1, user.getFullName());
             stmt.setString(2, user.getPhone());
             stmt.setString(3, user.getDepartment());
@@ -110,10 +106,9 @@ public class UserDao {
     public boolean updatePassword(int userId, String newPassword) {
         String sql = "UPDATE users SET password = ? WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setString(1, BCrypt.hashpw(newPassword, BCrypt.gensalt(12)));
             stmt.setInt(2, userId);
 
@@ -127,10 +122,9 @@ public class UserDao {
     public boolean setRole(int userId, String role) {
         String sql = "UPDATE users SET role = ? WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setString(1, role);
             stmt.setInt(2, userId);
 
@@ -147,8 +141,7 @@ public class UserDao {
         String deleteBooks = "DELETE FROM books WHERE user_id = ?";
         String deleteUser = "DELETE FROM users WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD)) {
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
+        try (Connection conn = DatabaseConfig.getConnection()) {
             conn.setAutoCommit(false);
 
             try (PreparedStatement reqStmt = conn.prepareStatement(deleteRequests);
@@ -183,11 +176,10 @@ public class UserDao {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users ORDER BY created_at DESC";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             while (rs.next()) {
                 users.add(extractUserFromResultSet(rs));
             }
@@ -200,10 +192,9 @@ public class UserDao {
     public boolean emailExists(String email) {
         String sql = "SELECT id FROM users WHERE email = ?";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setString(1, email);
             ResultSet rs = stmt.executeQuery();
             return rs.next();

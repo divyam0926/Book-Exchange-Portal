@@ -13,10 +13,9 @@ public class ExchangeRequestDao {
     public boolean createRequest(ExchangeRequest exchangeRequest) {
         String sql = "INSERT INTO exchange_requests (book_id, requester_id, owner_id, status, notes, requested_at) VALUES (?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setInt(1, exchangeRequest.getBookId());
             stmt.setInt(2, exchangeRequest.getRequesterId());
             stmt.setInt(3, exchangeRequest.getOwnerId());
@@ -34,10 +33,9 @@ public class ExchangeRequestDao {
     public boolean hasPendingRequest(int bookId, int requesterId) {
         String sql = "SELECT id FROM exchange_requests WHERE book_id = ? AND requester_id = ? AND status = 'PENDING'";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setInt(1, bookId);
             stmt.setInt(2, requesterId);
 
@@ -53,10 +51,9 @@ public class ExchangeRequestDao {
         List<Integer> list = new ArrayList<>();
         String sql = "SELECT book_id FROM exchange_requests WHERE requester_id = ? AND status = 'PENDING'";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setInt(1, requesterId);
 
             ResultSet rs = stmt.executeQuery();
@@ -72,10 +69,9 @@ public class ExchangeRequestDao {
     public int getPendingIncomingCount(int ownerId) {
         String sql = "SELECT COUNT(*) FROM exchange_requests WHERE owner_id = ? AND status = 'PENDING'";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setInt(1, ownerId);
 
             ResultSet rs = stmt.executeQuery();
@@ -99,10 +95,9 @@ public class ExchangeRequestDao {
                      "JOIN users u ON er.requester_id = u.id " +
                      "WHERE er.owner_id = ? ORDER BY er.requested_at DESC";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setInt(1, ownerId);
 
             ResultSet rs = stmt.executeQuery();
@@ -138,10 +133,9 @@ public class ExchangeRequestDao {
                      "JOIN users u ON er.owner_id = u.id " +
                      "WHERE er.requester_id = ? ORDER BY er.requested_at DESC";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setInt(1, requesterId);
 
             ResultSet rs = stmt.executeQuery();
@@ -177,11 +171,10 @@ public class ExchangeRequestDao {
                      "JOIN users own ON er.owner_id = own.id " +
                      "ORDER BY er.requested_at DESC";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             while (rs.next()) {
                 ExchangeRequest req = new ExchangeRequest();
                 mapBasicFields(req, rs);
@@ -201,10 +194,9 @@ public class ExchangeRequestDao {
     public ExchangeRequest getRequestById(int id) {
         String sql = "SELECT * FROM exchange_requests WHERE id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setInt(1, id);
 
             ResultSet rs = stmt.executeQuery();
@@ -225,8 +217,7 @@ public class ExchangeRequestDao {
         String updateBookSql = "UPDATE books SET status = 'EXCHANGED' WHERE id = ?";
         String rejectOthersSql = "UPDATE exchange_requests SET status = 'REJECTED' WHERE book_id = ? AND id != ? AND status = 'PENDING'";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD)) {
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
+        try (Connection conn = DatabaseConfig.getConnection()) {
             conn.setAutoCommit(false);
 
             int bookId = -1;
@@ -276,10 +267,9 @@ public class ExchangeRequestDao {
     public boolean rejectRequest(int requestId, int ownerId) {
         String sql = "UPDATE exchange_requests SET status = 'REJECTED' WHERE id = ? AND owner_id = ?";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setInt(1, requestId);
             stmt.setInt(2, ownerId);
 
@@ -293,10 +283,9 @@ public class ExchangeRequestDao {
     public boolean cancelRequest(int requestId, int requesterId) {
         String sql = "UPDATE exchange_requests SET status = 'CANCELLED' WHERE id = ? AND requester_id = ? AND status = 'PENDING'";
 
-        try (Connection conn = DriverManager.getConnection(DatabaseConfig.DB_URL, DatabaseConfig.DB_USER, DatabaseConfig.DB_PASSWORD);
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            Class.forName(DatabaseConfig.JDBC_DRIVER);
             stmt.setInt(1, requestId);
             stmt.setInt(2, requesterId);
 
